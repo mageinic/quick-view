@@ -1,0 +1,86 @@
+<?php
+/**
+ * MageINIC
+ * Copyright (C) 2023 MageINIC <support@mageinic.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://opensource.org/licenses/gpl-3.0.html.
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category MageINIC
+ * @package MageINIC_QuickView
+ * @copyright Copyright (c) 2023 MageINIC (https://www.mageinic.com/)
+ * @license https://opensource.org/licenses/gpl-3.0.html GNU General Public License,version 3 (GPL-3.0)
+ * @author MageINIC <support@mageinic.com>
+ */
+
+use Magento\Catalog\Block\Product\View;
+use Magento\Framework\Escaper;
+
+/**
+ * Add To Cart Button Template
+ *
+ * @var $block View
+ * @var $escaper Escaper
+ */
+
+$_product = $block->getProduct();
+$buttonTitle = __('Add to Cart');
+if ($_product->isSaleable()): ?>
+    <div class="box-tocart addquickview-tocart">
+        <div class="fieldset">
+            <?php if ($block->shouldRenderQuantity()): ?>
+                <div class="field qty">
+                    <label class="label" for="qty"><span><?= $escaper->escapeHtml(__('Qty')) ?></span></label>
+                    <div class="control">
+                        <input type="number"
+                               name="qty"
+                               id="qty"
+                               maxlength="12"
+                               value="<?= /* @escapeNotVerified */
+                                $block->getProductDefaultQty() * 1 ?>"
+                               title="<?= $escaper->escapeHtml(__('Qty')) ?>" class="input-text qty"
+                               data-validate="<?=
+                                $escaper->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                        />
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="actions">
+                <button type="submit"
+                        title="<?= $escaper->escapeHtml($buttonTitle) ?>"
+                        class="action primary tocart"
+                        id="product-addtocart-button">
+                    <span><?= $escaper->escapeHtml($buttonTitle) ?></span>
+                </button>
+                <?= $block->getChildHtml('', true) ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+<script type="text/x-magento-init">
+<?php if ($block->isRedirectToCartEnabled()): ?>
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/product/view/validation": {
+                "radioCheckboxClosest": ".nested"
+            }
+        }
+    }
+<?php else: ?>
+    {
+        "*": {
+            "MageINIC_QuickView/js/addtocartvalidation":{}
+        }
+    }
+<?php endif; ?>
+</script>

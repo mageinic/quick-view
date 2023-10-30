@@ -1,0 +1,178 @@
+<?php
+/**
+ * MageINIC
+ * Copyright (C) 2023 MageINIC <support@mageinic.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://opensource.org/licenses/gpl-3.0.html.
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category MageINIC
+ * @package MageINIC_QuickView
+ * @copyright Copyright (c) 2023 MageINIC (https://www.mageinic.com/)
+ * @license https://opensource.org/licenses/gpl-3.0.html GNU General Public License,version 3 (GPL-3.0)
+ * @author MageINIC <support@mageinic.com>
+ * phpcs:ignoreFile
+ */
+
+use MageINIC\QuickView\ViewModel\QuickView;
+use Magento\Catalog\Block\Product\ReviewRendererInterface;
+use Magento\CatalogWidget\Block\Product\ProductsList;
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\Escaper;
+
+/**
+ * Template For Displaying New Products Widget
+ *
+ * @var $block ProductsList
+ * @var $viewModel QuickView
+ * @var $escaper Escaper
+ */
+
+$viewModel = $block->getViewModel();
+$helper = $viewModel->getQuickViewHelper();
+$isModuleEnable = $helper->getQuickViewEnabled();
+$buttonTitle = $helper->getQuickViewButtonText();
+
+if ($exist = ($block->getProductCollection() && $block->getProductCollection()->getSize())) :
+    $type = 'widget-new-grid';
+    $mode = 'grid';
+    $image = 'new_products_content_widget_grid';
+    $title = __($block->getTitle());
+    $items = $block->getProductCollection()->getItems();
+    $showWishlist = true;
+    $showCompare = true;
+    $showCart = true;
+    $templateType = ReviewRendererInterface::DEFAULT_VIEW;
+    $description = false;
+    ?>
+    <div class="block widget block-new-products <?= /* @noEscape */
+    $mode ?>">
+        <div class="block-title">
+            <strong role="heading" aria-level="2"><?= $escaper->escapeHtml($title) ?></strong>
+        </div>
+        <div class="block-content">
+            <?= /* @noEscape */
+            '<!-- ' . $image . '-->' ?>
+            <div class="products-<?= /* @noEscape */ $mode ?> <?= /* @noEscape */ $mode ?>">
+                <ol class="product-items <?= /* @noEscape */ $type ?>">
+                    <?php $iterator = 1; ?>
+                    <?php foreach ($items as $_item) : ?>
+                    <?= /* @noEscape */
+                    ($iterator++ == 1) ? '<li class="product-item">' : '</li><li class="product-item">' ?>
+                    <div class="product-item-info">
+                        <a href="<?= $escaper->escapeUrl($block->getProductUrl($_item)) ?>"
+                           class="product-item-photo">
+                            <?= $block->getImage($_item, $image)->toHtml() ?>
+                        </a>
+                        <div class="product-item-details">
+                            <strong class="product-item-name">
+                                <a title="<?= $escaper->escapeHtml($_item->getName()) ?>"
+                                   href="<?= $escaper->escapeUrl($block->getProductUrl($_item)) ?>"
+                                   class="product-item-link">
+                                    <?= $escaper->escapeHtml($_item->getName()) ?>
+                                </a>
+                            </strong>
+                            <?php if ($templateType) : ?>
+                                <?= $block->getReviewsSummaryHtml($_item, $templateType) ?>
+                            <?php endif; ?>
+                            <?= $block->getProductPriceHtml($_item, $type) ?>
+                            <?= $block->getProductDetailsHtml($_item) ?>
+                            <?php if ($helper !== null) :
+                                if ($helper->getQuickViewEnabled()): ?>
+                                    <a class="addquickview" data-qvpid="<?= $escaper->escapeHtml($_item->getId()) ?>"
+                                       data-qvurl="<?= $helper->getQuickViewUrl() . $_item->getId() ?>"
+                                       href="javascript:void(0);">
+                                        <span><?= $escaper->escapeHtml(__($helper->getQuickViewButtonText())) ?></span>
+                                    </a>
+                                <?php endif; ?>
+                            <?php endif;?>
+                            <?php if ($showWishlist || $showCompare || $showCart) : ?>
+                            <div class="product-item-inner">
+                                <div class="product-item-actions">
+                                    <?php if ($showCart || $isModuleEnable) : ?>
+                                    <div class="actions-primary">
+                                        <?php if ($_item->isSaleable()) : ?>
+                                            <?php $postParams = $block->getAddToCartPostParams($_item); ?>
+                                            <form data-role="tocart-form"
+                                                  data-product-sku="<?= $escaper->escapeHtml($_item->getSku()) ?>"
+                                                  action="<?= $escaper->escapeUrl($postParams['action'] ?? '') ?>"
+                                                  method="post">
+                                                <input type="hidden" name="product"
+                                                       value="<?= $escaper->escapeHtmlAttr($postParams['data']['product'] ?? '') ?>">
+                                                <input type="hidden" name="<?= /* @noEscape */
+                                                ActionInterface::PARAM_NAME_URL_ENCODED ?>" value="<?= /* @noEscape */
+                                                    $postParams['data'][ActionInterface::PARAM_NAME_URL_ENCODED] ?? '' ?>">
+                                                <?= $block->getBlockHtml('formkey') ?>
+                                                <button type="submit"
+                                                        title="<?= $escaper->escapeHtml(__('Add to Cart')) ?>"
+                                                        class="action tocart primary">
+                                                    <span><?= $escaper->escapeHtml(__('Add to Cart')) ?></span>
+                                                </button>
+                                            </form>
+                                        <?php else : ?>
+                                            <?php if ($_item->isAvailable()) : ?>
+                                                <div class="stock available">
+                                                    <span><?= $escaper->escapeHtml(__('In stock')) ?></span>
+                                                </div>
+                                            <?php else : ?>
+                                                <div class="stock unavailable">
+                                                    <span><?= $escaper->escapeHtml(__('Out of stock')) ?></span>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                    <?php if ($showWishlist || $showCompare) : ?>
+                                        <div class="actions-secondary" data-role="add-to-links">
+                                            <?php if ($this->helper(Magento\Wishlist\Helper\Data::class)->isAllow() && $showWishlist) : ?>
+                                                <a href="#"
+                                                   data-post='<?= /* @noEscape */
+                                                   $block->getAddToWishlistParams($_item) ?>'
+                                                   class="action towishlist"
+                                                   data-action="add-to-wishlist"
+                                                   title="<?= $escaper->escapeHtmlAttr(__('Add to Wish List')) ?>">
+                                                    <span><?= $escaper->escapeHtml(__('Add to Wish List')) ?></span>
+                                                </a>
+                                            <?php endif; ?>
+                                            <?php if ($block->getAddToCompareUrl() && $showCompare) : ?>
+                                                <?php $compareHelper = $this->helper(Magento\Catalog\Helper\Product\Compare::class); ?>
+                                                <a href="#" class="action tocompare"
+                                                   data-post='<?= /* @noEscape */
+                                                   $compareHelper->getPostDataParams($_item) ?>'
+                                                   title="<?= $escaper->escapeHtmlAttr(__('Add to Compare')) ?>">
+                                                    <span><?= $escaper->escapeHtml(__('Add to Compare')) ?></span>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?= ($iterator == count($items) + 1) ? '</li>' : '' ?>
+                        <?php endforeach ?>
+                </ol>
+            </div>
+            <?= $block->getPagerHtml() ?>
+        </div>
+    </div>
+    <?php if ($block->getBlockHtml('formkey')): ?>
+        <script type="text/x-magento-init">
+            {
+                ".block.widget [data-role=tocart-form]": {
+                    "Magento_Catalog/js/validate-product": {}
+                }
+            }
+        </script>
+    <?php endif; ?>
+<?php endif; ?>

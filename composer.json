@@ -1,0 +1,30 @@
+{
+    "name": "mageinic/quickview",
+    "description": "Quick View extension enables customers to easily preview products within a Quick View pop-up, eliminating the need to navigate away from the current page.",
+    "require": {
+        "php": "^8.0",
+        "mageinic/core": "1.0.*",
+        "magento/module-catalog" : "104.0.*",
+        "magento/module-wishlist" : "101.2.*"
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "Commercial"
+    ],
+    "authors": [
+        {
+            "name": "MageINIC",
+            "email": "support@mageinic.com",
+            "homepage": "https://www.mageinic.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "MageINIC\\QuickView\\": ""
+        }
+    }
+}

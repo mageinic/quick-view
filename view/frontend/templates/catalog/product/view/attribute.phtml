@@ -1,0 +1,80 @@
+<?php
+/**
+ * MageINIC
+ * Copyright (C) 2023 MageINIC <support@mageinic.com>
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://opensource.org/licenses/gpl-3.0.html.
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category MageINIC
+ * @package MageINIC_QuickView
+ * @copyright Copyright (c) 2023 MageINIC (https://www.mageinic.com/)
+ * @license https://opensource.org/licenses/gpl-3.0.html GNU General Public License,version 3 (GPL-3.0)
+ * @author MageINIC <support@mageinic.com>
+ */
+
+use MageINIC\QuickView\ViewModel\QuickView;
+use Magento\Catalog\Block\Product\View\Description;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+
+/**
+ * Product Attribute Template
+ *
+ * @var $block Description
+ * @var $escaper Escaper;
+ * @var $viewModel QuickView;
+ */
+
+$viewModel = $block->getData('mageinicViewModel');
+$helper = $viewModel->getQuickViewHelper();
+$displayTabs = $helper->getAdditionalInfoEnabled();
+
+if ($displayTabs == '1'):
+    $_helper = $viewModel->getOutputHelper();
+    $_product = $block->getProduct();
+    if (!$_product instanceof Product) {
+        return;
+    }
+    $_call = $block->getAtCall();
+    $_code = $block->getAtCode();
+    $_className = $block->getCssClass();
+    $_attributeLabel = $block->getAtLabel();
+    $_attributeType = $block->getAtType();
+    $_attributeAddAttribute = $block->getAddAttribute();
+    $renderLabel = true;
+
+    if ($_attributeLabel == 'none') {
+        $renderLabel = false;
+    }
+    if ($_attributeLabel && $_attributeLabel == 'default') {
+        $_attributeLabel = $_product->getResource()->getAttribute($_code)->getStoreLabel();
+    }
+    if ($_attributeType && $_attributeType == 'text') {
+        $_attributeValue = ($_helper->productAttribute($_product, $_product->$_call(), $_code))
+            ? $_product->getAttributeText($_code)
+            : '';
+    } else {
+        $_attributeValue = $_helper->productAttribute($_product, $_product->$_call(), $_code);
+    }
+    ?>
+    <?php if ($_attributeValue): ?>
+        <div class="product attribute <?= $escaper->escapeHtmlAttr($_className) ?>">
+            <?php if ($renderLabel): ?>
+                <strong class="type"><?= $escaper->escapeHtml($_attributeLabel) ?></strong>
+            <?php endif; ?>
+            <div class="value" <?= /* @noEscape */$_attributeAddAttribute ?>><?= /* @noEscape */$_attributeValue ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
