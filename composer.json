@@ -1,5 +1,5 @@
 {
-    "name": "mageinic/quickview",
+    "name": "mageinic/quick-view",
     "description": "Quick View by MageINIC, Boost your E-commerce conversion rates with the Magento 2 Quick View extension. Streamline the shopping experience by allowing customers to view product details effortlessly in a pop-up, eliminating the need for time-consuming page loads. They can quickly add items to their carts, improving user satisfaction and overall shopping efficiency.",
     "require": {
         "php": "^8.0",
